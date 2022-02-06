@@ -42,4 +42,11 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
+
+    //Relación 1:n Usuario a Peliculas
+    //Un usuario puede tener multiples Peliculas
+    public function userPeliculas()
+    {
+        return $this->hasMany(Pelicula::class);
+    }
 }

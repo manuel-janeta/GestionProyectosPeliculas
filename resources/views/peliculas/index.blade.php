@@ -5,6 +5,7 @@
 
 @section('content')
 <h2 class="text-center mb-5">Administra tus Peliculas</h2>
+
 <div class="col-md-10 mx-auto bg-white p-3">
     <table class="table">
         <thead class="bg-primary text-light">
@@ -15,11 +16,17 @@
             </tr>
         </thead>
         <tbody>
+         @foreach($userPeliculas as $userPelicula)
             <tr>
-                <th scope="col">Venom:</th>
-                <th scope="col"> Ficción</th>
-                <th scope="col">N/a</th>
+                <td>{{$userPelicula->nombre}}</td>
+                <td> {{$userPelicula->categoria_id}}</td>
+                <td>
+                    <a href="" class="btn btn-success">Ver</a>
+                    <a href="" class="btn btn-dark">Editar</a>
+                    <a href="" class="btn btn-danger">Eliminar</a>
+                </td>
             </tr>
+            @endforeach
         </tbody>
 
     </table>
