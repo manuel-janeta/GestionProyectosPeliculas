@@ -12,18 +12,19 @@
             <tr>
                 <th scope="col">Nombre:</th>
                 <th scope="col"> Categoría:</th>
-                <th scope="col">Diector</th>
+                <th scope="col">Acciones:</th>
             </tr>
         </thead>
         <tbody>
-         @foreach($userPeliculas as $userPelicula)
+            @foreach($userPeliculas as $userPelicula)
             <tr>
                 <td>{{$userPelicula->nombre}}</td>
-                <td> {{$userPelicula->categoria_id}}</td>
+                <td> {{$userPelicula->categoriaPelicula->nombre}}</td>
                 <td>
-                    <a href="" class="btn btn-success">Ver</a>
-                    <a href="" class="btn btn-dark">Editar</a>
-                    <a href="" class="btn btn-danger">Eliminar</a>
+                    <a href="{{route('peliculas.show',['pelicula'=>$userPelicula->id])}}" class="btn btn-success d-block mb-1">Ver</a>
+                    <a href="{{route('peliculas.edit',['pelicula'=>$userPelicula->id])}}" class="btn btn-dark d-block mb-1">Editar</a>
+                     <eliminar-pelicula pelicula-id={{$userPelicula->id}}>
+                    </eliminar-pelicula>
                 </td>
             </tr>
             @endforeach

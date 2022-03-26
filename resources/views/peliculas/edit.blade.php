@@ -10,14 +10,15 @@
 @endsection
 
 @section('content')
-<h2 class="text-center mb-5">Crear Nueva Pelicula</h2>
+<h2 class="text-center mb-5">ditar Pelicula: {{$pelicula->nombre}}</h2>
 <div class="row justify-content-center mt-5">
     <div class="col-md-8">
-        <form method="POST" action="{{route('peliculas.store')}}" enctype="multipart/form-data" novalidate>
+        <form method="POST" action="{{route('peliculas.update' , ['pelicula'=>$pelicula->id])}}" enctype="multipart/form-data" novalidate>
             @csrf
+             @method('PUT')
             <div class="form-group">
                 <label form="nombre">Nombre Pelicula</label>
-                <input type="text" name="nombre" class="form-control @error('nombre')is-invalid @enderror" id="nombre" placeholder="Nombre Pelicula" value="{{old('nombre')}}">
+                <input type="text" name="nombre" class="form-control @error('nombre')is-invalid @enderror" id="nombre" placeholder="Nombre Pelicula" value="{{$pelicula->nombre}}">
                 @error('nombre')
                 <span class="invalid-feedback d-block" role="alert">
                     <strong>{{$message}}</strong>
@@ -30,7 +31,7 @@
                 <select name="categoria" class="form-control @error('categoria') is-invalid @enderror" id="categoria">
                     <option value=''>--Seleccione--</option>
                     @foreach($categorias as $categoria)
-                    <option value="{{$categoria->id}}" {{old('categoria')==$categoria->id?'selected':''}}>{{$categoria->nombre}}</option>
+                    <option value="{{$categoria->id}}" {{$pelicula->categoria_id==$categoria->id?'selected':''}}>{{$categoria->nombre}}</option>
                     @endforeach
                 </select>
                 @error('categoria')
@@ -42,7 +43,7 @@
 
             <div class="form-group">
                 <label form="actores">Actores</label>
-                <input name="actores" type='hidden' id="actores" value="{{old('actores')}}">
+                <input name="actores" type='hidden' id="actores" value="{{$pelicula->actores}}">
                 <trix-editor class="form-control @error('actores') is-invalid @enderror" input="actores"> </trix-editor>
                 @error('actores')
                 <span class="invalid-feedback d-block" role="alert">
@@ -53,7 +54,7 @@
 
             <div class="form-group">
                 <label form="sinopsis">Sinopsis</label>
-                <input name="sinopsis" type='hidden' id="sinopsis" value="{{old('sinopsis')}}">
+                <input name="sinopsis" type='hidden' id="sinopsis" value="{{$pelicula->sinopsis}}">
                 <trix-editor class="form-control @error('sinopsis') is-invalid @enderror" input="sinopsis"> </trix-editor>
                 @error('sinopsis')
                 <span class="invalid-feedback d-block" role="alert">
@@ -65,6 +66,10 @@
             <div class="form-group mt-3">
                 <label for="imagen">Imagen</label>
                 <input id="imagen" type='file' class="form-control @error('imagen') is-invalid @enderror" name="imagen">
+                 <div class="mt-4">
+                    <p> Imagen Actual</p>
+                    <img src="/storage/{{$pelicula->imagen}}"style= "width:300px">
+                </div>
                 @error('imagen')
                 <span class="invalid-feedback d-block" role="alert">
                     <strong>{{$message}}</strong>
@@ -74,7 +79,7 @@
 
             <div class="form-group">
                 <label form="duracion">Duración</label>
-                <input type="text" name="duracion" class="form-control @error('duracion') is-invalid @enderror" id="duracion" placeholder="duracion Receta" value="{{old('duracion')}}">
+                <input type="text" name="duracion" class="form-control @error('duracion') is-invalid @enderror" id="duracion" placeholder="duracion Receta" value="{{$pelicula->duracion}}">
                 @error('duracion')
                 <span class="invalid-feedback d-block" role="alert">
                     <strong>{{$message}}</strong>
@@ -83,7 +88,7 @@
             </div>
 
             <div class="form-group">
-                <input type="submit" class="btn btn-primary" value="Agregar Pelicula">
+                <input type="submit" class="btn btn-primary" value="Actualizar Pelicula">
             </div>
         </form>
     </div>

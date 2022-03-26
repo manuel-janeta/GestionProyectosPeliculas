@@ -6,6 +6,7 @@ use App\Models\Pelicula;
 use App\Models\Categoria;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Intervention\Image\Facades\Image;
 use Illuminate\Support\Facades\Redirect;
@@ -15,7 +16,7 @@ class PeliculaController extends Controller
     //costructor
     public function __construct()
     {
-        $this->middleware('auth'); //verifica que se haya relizado la autentificación
+        $this->middleware('auth', ['except' => 'show']); //verifica que se haya relizado la autentificación
     }
 
     /**
@@ -25,7 +26,7 @@ class PeliculaController extends Controller
      */
     public function index()
     {
-        
+
         //Capturar el id del usuario autentificado
         $userPeliculas = Auth::user()->userPeliculas;
         return view('peliculas.index')->with('userPeliculas', $userPeliculas);
@@ -42,7 +43,7 @@ class PeliculaController extends Controller
         //$categorias = DB::table('categorias')->get()->pluck('nombre', 'id');
 
 
-        $categorias =Categoria::all(['id', 'nombre']);
+        $categorias = Categoria::all(['id', 'nombre']);
         return view('peliculas.create')->with('categorias', $categorias);
     }
 
@@ -72,9 +73,8 @@ class PeliculaController extends Controller
         $img = Image::make(public_path("storage/{$ruta_imagen}"))->fit(1000, 550);
         //Guardar en el disco duro del sevidor
         $img->save();
-
         //almacenar en la BDD
-        DB::table('peliculas')->insert([
+        /*DB::table('peliculas')->insert([
             'nombre' => $data['nombre'],
             'actores' => $data['actores'],
             'sinopsis' => $data['sinopsis'],
@@ -82,7 +82,16 @@ class PeliculaController extends Controller
             'duracion' => $data['duracion'],
             'user_id' => Auth::user()->id, //capturar el id de usuario
             'categoria_id' => $data['categoria']
+        ]);*/
 
+        //Almacenar en la BDD (con modelo)
+        Auth::user()->userPeliculas()->create([
+            'nombre' => $data['nombre'],
+            'actores' => $data['actores'],
+            'sinopsis' => $data['sinopsis'],
+            'imagen' => $ruta_imagen,
+            'duracion' => $data['duracion'],
+            'categoria_id' => $data['categoria']
         ]);
         //redireccion
         return Redirect()->action([PeliculaController::class, 'index']);
@@ -96,7 +105,7 @@ class PeliculaController extends Controller
      */
     public function show(Pelicula $pelicula)
     {
-        //
+        return view('peliculas.show')->with('pelicula', $pelicula);
     }
 
     /**
@@ -107,7 +116,9 @@ class PeliculaController extends Controller
      */
     public function edit(Pelicula $pelicula)
     {
-        //
+        $categorias = Categoria::all(['id', 'nombre']);
+        return view('peliculas.edit')->with('categorias', $categorias)
+            ->with('pelicula', $pelicula);
     }
 
     /**
@@ -119,7 +130,36 @@ class PeliculaController extends Controller
      */
     public function update(Request $request, Pelicula $pelicula)
     {
-        //
+        //verificar policy
+        $this->authorize('update', $pelicula);
+
+        $data = $request->validate([
+            'nombre' => 'required|min:6',
+            'categoria' => 'required',
+            'actores' => 'required',
+            'sinopsis' => 'required|min:50',
+            'duracion' => 'required'
+        ]);
+        //asignando valores
+        $pelicula->nombre = $data['nombre'];
+        $pelicula->categoria_id = $data['categoria'];
+        $pelicula->actores = $data['actores'];
+        $pelicula->sinopsis = $data['sinopsis'];
+        $pelicula->duracion = $data['duracion'];
+
+
+        if (request('imagen')) {
+            //variable para la ruta de la imagen
+            $ruta_imagen = $request['imagen']->store('upload-peliculas', 'public');
+
+            //Redimensionar la imagen
+            $img = Image::make(public_path("storage/{$ruta_imagen}"))->fit(1000, 550);
+            //Guardar en el disco duro del sevidor
+            $img->save();
+            $pelicula->imagen = $ruta_imagen;
+        }
+        $pelicula->save();
+        return Redirect()->action([PeliculaController::class, 'index']);
     }
 
     /**
@@ -130,6 +170,8 @@ class PeliculaController extends Controller
      */
     public function destroy(Pelicula $pelicula)
     {
-        //
+        $this->authorize('delete', $pelicula);
+        $pelicula->delete();
+        return Redirect()->action([PeliculaController::class, 'index']);
     }
 }
